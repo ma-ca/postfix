@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: Docker build postfix multiarch
+name: Docker build postfix and dovecot multiarch
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -80,12 +80,13 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: ghcr.io/${{ github.repository_owner }}/postfix:${{ env.DOVECOT_VERSION }}
-        run: echo "${{ env.tags }}"
+      - name: ghcr.io/${{ github.repository_owner }}/dovecot:${{ env.DOVECOT_VERSION }}
+        run: echo "${{ env.dovecot_tags }}"
       
-      - name: Build and push postfix ${{ env.DOVECOT_VERSION }}
+      - name: Build and push dovecot ${{ env.DOVECOT_VERSION }}
         uses: docker/build-push-action@v2
         with:
           push: true
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           tags: ${{ env.dovecot_tags }}
+          file: Dockerfile-dovecot

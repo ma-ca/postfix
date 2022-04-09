@@ -1,0 +1,14 @@
+FROM alpine
+
+RUN apk add --no-cache \
+      dovecot dovecot-lmtpd dovecot-pop3d \
+ && adduser -D vmail
+
+# imap      143/tcp  # Internet Mail Access Protocol rev4
+# imaps     993/tcp  # IMAP over TLS
+# lmtp      24/tcp   # Lightweight Mail Transport Protocol service
+
+# lmtp, imap
+EXPOSE 24/tcp 143/tcp 993/tcp
+
+CMD ["/usr/sbin/dovecot", "-c", "/etc/dovecot/dovecot.conf", "-F"]

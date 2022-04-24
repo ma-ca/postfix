@@ -1,0 +1,7 @@
+FROM alpine:edge
+
+RUN apk add --no-cache fetchmail
+
+USER fetchmail
+
+CMD /usr/bin/fetchmail

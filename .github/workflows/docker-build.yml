@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: Docker build postfix and dovecot multiarch
+name: Docker multiarch build postfix, dovecot, fetchmail
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -11,6 +11,7 @@ on:
 env:
   TEST_POSTFIX: postfix:test
   TEST_DOVECOT: dovecot:test
+  TEST_FETCHMAIL: fetchmail:test
 
 jobs:
 
@@ -90,3 +91,46 @@ jobs:
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           tags: ${{ env.dovecot_tags }}
           file: Dockerfile-dovecot
+
+  build-fetchmail:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      
+      - name: Get fetchmail version used in image tags
+        run: |
+          docker build -t $TEST_FETCHMAIL -f Dockerfile-fetchmail .
+          
+          FETCHMAIL_VERSION=$(docker run $TEST_FETCHMAIL fetchmail --version | \
+            grep "This is fetchmail release" | \
+            sed "s/This is fetchmail release \([0-9]\.[0-9]\.[0-9]*\).*/\1/")
+          
+          fetchmail_image=ghcr.io/${{ github.repository_owner }}/fetchmail
+          echo "fetchmail_tags=${fetchmail_image}:${FETCHMAIL_VERSION},${fetchmail_image}:latest" >> ${GITHUB_ENV}
+          echo "FETCHMAIL_VERSION=${FETCHMAIL_VERSION}" >> ${GITHUB_ENV}
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: ghcr.io/${{ github.repository_owner }}/fetchmail:${{ env.FETCHMAIL_VERSION }}
+        run: echo "${{ env.fetchmail_tags }}"
+      
+      - name: Build and push fetchmail ${{ env.FETCHMAIL_VERSION }}
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          tags: ${{ env.fetchmail_tags }}
+          file: Dockerfile-fetchmail

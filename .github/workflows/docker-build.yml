@@ -12,6 +12,7 @@ env:
   TEST_POSTFIX: postfix:test
   TEST_DOVECOT: dovecot:test
   TEST_FETCHMAIL: fetchmail:test
+  TEST_MAILFILTER: mailfilter:test
 
 jobs:
 
@@ -134,3 +135,45 @@ jobs:
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           tags: ${{ env.fetchmail_tags }}
           file: Dockerfile-fetchmail
+
+  build-mailfilter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      
+      - name: Get mailfilter version used in image tags
+        run: |
+          docker build -t $TEST_MAILFILTER -f Dockerfile-mailfilter .
+          
+          MAILFILTER_VERSION=$(docker run $TEST_MAILFILTER mailfilter --version | \
+            sed -n -e "/^mailfilter/ s/mailfilter //p")
+          
+          mailfilter_image=ghcr.io/${{ github.repository_owner }}/mailfilter
+          echo "mailfilter_tags=${mailfilter_image}:${MAILFILTER_VERSION},${mailfilter_image}:latest" >> ${GITHUB_ENV}
+          echo "MAILFILTER_VERSION=${MAILFILTER_VERSION}" >> ${GITHUB_ENV}
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: ghcr.io/${{ github.repository_owner }}/mailfilter:${{ env.MAILFILTER_VERSION }}
+        run: echo "${{ env.mailfilter_tags }}"
+      
+      - name: Build and push mailfilter ${{ env.MAILFILTER_VERSION }}
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          tags: ${{ env.mailfilter_tags }}
+          file: Dockerfile-mailfilter

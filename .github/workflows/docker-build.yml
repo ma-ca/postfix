@@ -143,6 +143,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: nondeterministic/mailfilter
+          path: mailfilter
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       

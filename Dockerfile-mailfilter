@@ -1,5 +1,30 @@
-FROM debian:bullseye-slim
+FROM alpine:edge as builder
 
-RUN apt-get update \
- && apt-get install -y mailfilter fetchmail \
- && rm -rf /var/lib/apt/lists/*
+COPY ./mailfilter /mailfilter
+
+RUN apk add --no-cache \
+        build-base \
+        bison \
+        flex \
+        flex-dev \
+        openssl \
+        openssl-dev \
+        autoconf \
+        automake \
+ && cd /mailfilter \
+ && ./autogen.sh \
+ && make \
+ && make install
+
+FROM alpine:edge
+
+RUN apk add --no-cache \
+        libstdc++ \
+        openssl \
+        fetchmail
+
+COPY --from=builder /usr/local/bin/mailfilter /usr/local/bin/
+
+USER fetchmail
+
+CMD /usr/bin/fetchmail

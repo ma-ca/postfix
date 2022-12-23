@@ -146,7 +146,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: nondeterministic/mailfilter
+          # repository: nondeterministic/mailfilter
+          repository: ma-ca/mailfilter
           path: mailfilter
 
       - name: Set up QEMU

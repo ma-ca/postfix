@@ -38,7 +38,7 @@ jobs:
           echo "VERSION=${VERSION}" >> ${GITHUB_ENV}
       
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v7
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -48,7 +48,7 @@ jobs:
         run: echo "${{ env.tags }}"
       
       - name: Build and push postfix ${{ env.VERSION }}
-        uses: docker/build-push-action@v8
+        uses: docker/build-push-action@v7
         with:
           push: true
           platforms: linux/amd64,linux/arm/v7,linux/arm64
@@ -76,7 +76,7 @@ jobs:
           echo "DOVECOT_VERSION=${DOVECOT_VERSION}" >> ${GITHUB_ENV}
       
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v7
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -86,7 +86,7 @@ jobs:
         run: echo "${{ env.dovecot_tags }}"
       
       - name: Build and push dovecot ${{ env.DOVECOT_VERSION }}
-        uses: docker/build-push-action@v8
+        uses: docker/build-push-action@v7
         with:
           push: true
           platforms: linux/amd64,linux/arm/v7,linux/arm64
@@ -119,7 +119,7 @@ jobs:
           echo "FETCHMAIL_VERSION=${FETCHMAIL_VERSION}" >> ${GITHUB_ENV}
       
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v7
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -129,7 +129,7 @@ jobs:
         run: echo "${{ env.fetchmail_tags }}"
       
       - name: Build and push fetchmail ${{ env.FETCHMAIL_VERSION }}
-        uses: docker/build-push-action@v8
+        uses: docker/build-push-action@v7
         with:
           push: true
           platforms: linux/amd64,linux/arm/v7,linux/arm64
@@ -168,7 +168,7 @@ jobs:
           echo "MAILFILTER_VERSION=${MAILFILTER_VERSION}" >> ${GITHUB_ENV}
       
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v7
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -178,7 +178,7 @@ jobs:
         run: echo "${{ env.mailfilter_tags }}"
       
       - name: Build and push mailfilter ${{ env.MAILFILTER_VERSION }}
-        uses: docker/build-push-action@v8
+        uses: docker/build-push-action@v7
         with:
           push: true
           platforms: linux/amd64,linux/arm/v7,linux/arm64

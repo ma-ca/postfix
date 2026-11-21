@@ -1,12 +1,12 @@
-# Postfix Docker image
+# Postfix Container image
 
-Postfix stable release 3.7.0
+Postfix stable release 3.11.7
 
 http://www.postfix.org/announcements.html
 
 
 ```
-docker run postfix postconf mail_version | sed 's/mail_version = //'
+podman run --rm postfix postconf mail_version | sed 's/mail_version = //'
 ```
 
 Dockerfile
@@ -20,21 +20,19 @@ RUN apk add --no-cache \
 EXPOSE 25
 ```
 
-build multiarch images on Ubuntu with buildx and qemu-user-static
-
-https://github.com/multiarch/qemu-user-static
+build multiarch images on Ubuntu
 
 ```
-docker run --rm --privileged multiarch/qemu-user-static:register
-docker buildx build --platform linux/arm64 -t postfix .
+sudo podman run --rm --privileged tonistiigi/binfmt --install all
+podman build --platform linux/arm64 -t postfix .
 ```
 
 ```
-docker run --rm postfix uname -m
+podman run --rm postfix uname -m
 aarch64
 ```
 
 ```
-docker run --rm postfix postconf mail_version
-mail_version = 3.7.0
+podman run --rm postfix postconf mail_version
+mail_version = 3.11.7
 ```
